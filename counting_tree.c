@@ -28,10 +28,11 @@ void tree_print(struct node *root) {
     }
 }
 
-int collect_nodes(struct node *arr[], struct node *root, int index) {
+int collect_nodes(struct leaf arr[], struct node *root, int index) {
     if (root != NULL) {
 	index = collect_nodes(arr, root->left, index);
-	arr[index++] = root;
+	struct leaf new_leaf = {root->count, root->symbol};
+	arr[index++] = new_leaf;
 	index = collect_nodes(arr, root->right, index);
     }
     return index;
@@ -43,10 +44,4 @@ void free_tree(struct node *root) {
 	free_tree(root->right);
 	free(root);
     }
-}
-
-int compare(const void *a, const void *b) {
-    const struct node *na = *(const struct node **)a;
-    const struct node *nb = *(const struct node **)b;
-    return na->count - nb->count;
 }

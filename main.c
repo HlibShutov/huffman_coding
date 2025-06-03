@@ -6,7 +6,7 @@ int main(int argc, char *argv[]) {
     FILE *fp;
     int c, symbols_count;
     struct node *root = NULL;
-    struct node *leafs[256];
+    struct leaf leafs[256];
 
     if (argc != 2) {
 	fprintf(stderr, "provide file name\n");
@@ -27,11 +27,16 @@ int main(int argc, char *argv[]) {
     symbols_count = collect_nodes(leafs, root, 0);
     qsort(leafs, symbols_count, sizeof(leafs[0]), compare);
     for (int i = 0; i < symbols_count; i++) {
-	if (leafs[i] != NULL)
-	    printf("%c %d\n", leafs[i]->symbol, leafs[i]->count);
+	printf("%c %d\n", leafs[i].symbol, leafs[i].weight);
     }
 
     free_tree(root);
+
+    struct queue working_queue = {NULL, NULL};
+    struct internal internal1 = {NULL, NULL, 0};
+    enqueue(&working_queue, internal1);
+    struct internal queue_node1 = dequeue(&working_queue);
+    printf("%p %p %d\n", queue_node1.left, queue_node1.right, queue_node1.weight);
 
     return 0;
 }
