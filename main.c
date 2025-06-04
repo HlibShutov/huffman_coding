@@ -16,7 +16,8 @@ int main(int argc, char *argv[]) {
 
 
     while ((c = getc(fp)) != EOF)
-	root = add_tree(root, c);
+	if (c != 0)
+	    root = add_tree(root, c);
 
 
     fclose(fp);
@@ -26,17 +27,14 @@ int main(int argc, char *argv[]) {
     printf("collected: \n\n\n");
     symbols_count = collect_nodes(leafs, root, 0);
     qsort(leafs, symbols_count, sizeof(leafs[0]), compare);
-    for (int i = 0; i < symbols_count; i++) {
+    for (int i = 0; i < symbols_count; i++)
 	printf("%c %d\n", leafs[i].symbol, leafs[i].weight);
-    }
 
+    struct internal *huffman_tree = build_tree(leafs, symbols_count);
     free_tree(root);
-
-    struct queue working_queue = {NULL, NULL};
-    struct internal internal1 = {NULL, NULL, 0};
-    enqueue(&working_queue, internal1);
-    struct internal queue_node1 = dequeue(&working_queue);
-    printf("%p %p %d\n", queue_node1.left, queue_node1.right, queue_node1.weight);
+    print_huffman_tree(huffman_tree, 0);
+    printf("Huffman tree built. Root weight: %d\n", huffman_tree->weight);
+    free_huffman_tree(huffman_tree);
 
     return 0;
 }
