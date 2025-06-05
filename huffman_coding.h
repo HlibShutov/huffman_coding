@@ -53,3 +53,12 @@ int get_weight(struct huffman_node *);
 struct huffman_node *get_min(struct leaf[], int, struct queue *);
 void print_huffman_tree(struct internal *, int);
 void free_huffman_tree(struct internal *root);
+
+struct bit_path {
+    char bits;
+    int length;
+};
+
+void add_bit(struct bit_path *, int);
+void collect_huffman_tree(struct internal *, struct bit_path[], struct bit_path);
+void print_path(struct bit_path path);

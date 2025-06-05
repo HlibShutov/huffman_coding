@@ -7,6 +7,7 @@ int main(int argc, char *argv[]) {
     int c, symbols_count;
     struct node *root = NULL;
     struct leaf leafs[256];
+    struct bit_path dict[256];
 
     if (argc != 2) {
 	fprintf(stderr, "provide file name\n");
@@ -16,24 +17,32 @@ int main(int argc, char *argv[]) {
 
 
     while ((c = getc(fp)) != EOF)
-	if (c != 0)
-	    root = add_tree(root, c);
+	root = add_tree(root, c);
 
 
-    fclose(fp);
 
     /* tree_print(root); */
 
     printf("collected: \n\n\n");
     symbols_count = collect_nodes(leafs, root, 0);
+    free_tree(root);
     qsort(leafs, symbols_count, sizeof(leafs[0]), compare);
     for (int i = 0; i < symbols_count; i++)
-	printf("%c %d\n", leafs[i].symbol, leafs[i].weight);
+	printf("'%c' %d\n", leafs[i].symbol, leafs[i].weight);
 
     struct internal *huffman_tree = build_tree(leafs, symbols_count);
-    free_tree(root);
     print_huffman_tree(huffman_tree, 0);
     printf("Huffman tree built. Root weight: %d\n", huffman_tree->weight);
+    struct bit_path path = {0, 0};
+    collect_huffman_tree(huffman_tree, dict, path);
+
+    rewind(fp);
+    while ((c = getc(fp)) != EOF) {
+	printf("'%c': ", c);
+	print_path(dict[c]);
+    }
+
+    fclose(fp);
     free_huffman_tree(huffman_tree);
 
     return 0;

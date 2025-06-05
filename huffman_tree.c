@@ -88,3 +88,36 @@ void free_huffman_tree(struct internal *root) {
         free(root);
     }
 }
+
+void collect_huffman_tree(struct internal *root, struct bit_path dict[], struct bit_path path) {
+    struct bit_path left_path = path;
+    add_bit(&left_path, 0);
+    if (root->left->type == LEAF) {
+        dict[root->left->value.leaf_node.symbol] = left_path;
+    } else {
+        collect_huffman_tree(root->left->value.internal_node, dict, left_path);
+    }
+
+    struct bit_path right_path = path;
+    add_bit(&right_path, 1);
+    if (root->right->type == LEAF) {
+        dict[root->right->value.leaf_node.symbol] = right_path;
+    } else {
+        collect_huffman_tree(root->right->value.internal_node, dict, right_path);
+    }
+}
+
+
+void add_bit(struct bit_path *path, int bit) {
+    path->bits |= ((char)(bit & 1) << (7 - path->length));
+    path->length++;
+}
+
+void print_path(struct bit_path path) {
+    for (int i = 0; i < path.length; i++) {
+        int shift = 7 - i;
+        int bit = (path.bits >> shift) & 1;
+        putchar(bit ? '1' : '0');
+    }
+    putchar('\n');
+}
