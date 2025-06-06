@@ -61,4 +61,14 @@ struct bit_path {
 
 void add_bit(struct bit_path *, int);
 void collect_huffman_tree(struct internal *, struct bit_path[], struct bit_path);
-void print_path(struct bit_path path);
+
+struct bit_writer {
+    FILE *fp;
+    int bits_present;
+    char current_byte;
+};
+
+struct bit_writer open_bit_writer(char *, int, char);
+void write_bits(struct bit_writer *writer, char bits, int length);
+void close_bit_writer(struct bit_writer *writer);
+void print_binary(char c, int length);

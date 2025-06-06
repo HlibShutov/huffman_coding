@@ -112,12 +112,3 @@ void add_bit(struct bit_path *path, int bit) {
     path->bits |= ((char)(bit & 1) << (7 - path->length));
     path->length++;
 }
-
-void print_path(struct bit_path path) {
-    for (int i = 0; i < path.length; i++) {
-        int shift = 7 - i;
-        int bit = (path.bits >> shift) & 1;
-        putchar(bit ? '1' : '0');
-    }
-    putchar('\n');
-}
