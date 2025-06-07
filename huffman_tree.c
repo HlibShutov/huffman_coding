@@ -112,3 +112,14 @@ void add_bit(struct bit_path *path, int bit) {
     path->bits |= ((char)(bit & 1) << (7 - path->length));
     path->length++;
 }
+
+void write_huffman_tree(struct bit_writer *writer, struct huffman_node node) {
+    if (node.type == LEAF) {
+	write_bits(writer, (char)(1 << 7), 1);
+	write_bits(writer, node.value.leaf_node.symbol, 8);
+    } else {
+	write_bits(writer, 0, 1);
+	write_huffman_tree(writer, *node.value.internal_node->left);
+	write_huffman_tree(writer, *node.value.internal_node->right);
+    }
+}

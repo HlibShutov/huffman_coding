@@ -47,29 +47,43 @@ int main(int argc, char *argv[]) {
     }
     printf("bits size %d\n", size);
 
-    struct bit_writer writer;
-    if (ceil(log2(size)) == floor(log2(size)))
-        writer = open_bit_writer("example.huffman", 0, 0);
-    else {
-        int closest_2_pow = pow(2.0, (float)((int)log2(size) + 1));
-	int bits_present = closest_2_pow - size;
-	char current_bit = 0xFF << (8 - (bits_present - 1));
-        writer = open_bit_writer("example.huffman", bits_present, current_bit);
+    FILE *output = fopen("example.huffman", "wb");
+    struct bit_writer writer = {output, 0, 0};
+    if (size % 8 != 0) {
+        int closest_num = ((int)(size / 8) + 1) * 8;
+	int bits_present = closest_num - size;
+	printf("present %d closest %d size %d\n\n\n", bits_present, closest_num, size);
+	char current_byte = 0xFF << (8 - (bits_present - 1));
+	writer.bits_present = bits_present;
+	writer.current_byte = current_byte;
     }
     rewind(fp);
     while ((c = getc(fp)) != EOF)
         write_bits(&writer, dict[c].bits, dict[c].length);
 
     fclose(fp);
-    free_huffman_tree(huffman_tree);
 
     close_bit_writer(&writer);
 
     FILE *fp1 = fopen("example.huffman", "r");
-    while ((c = getc(fp1)) != EOF) {
+    while ((c = getc(fp1)) != EOF)
+	print_binary(c, 8);
+    printf("\n");
+    fclose(fp1);
+
+    FILE *write_tree = fopen("tree.huffman", "wb");
+    struct bit_writer writer1 = {write_tree, 0, 0};
+    struct huffman_node node;
+    node.value.internal_node = huffman_tree;
+    node.type = 1;
+    write_huffman_tree(&writer1, node);
+    close_bit_writer(&writer1);
+    printf("huffman tree encoded\n");
+    FILE *fp2 = fopen("tree.huffman", "r");
+    while ((c = getc(fp2)) != EOF) {
 	print_binary(c, 8);
     }
     printf("\n");
-    fclose(fp1);
+    free_huffman_tree(huffman_tree);
     return 0;
 }

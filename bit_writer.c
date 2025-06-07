@@ -2,14 +2,6 @@
 #include <math.h>
 #include "huffman_coding.h"
 
-struct bit_writer open_bit_writer(char *path, int bits_present, char current_byte) {
-    struct bit_writer writer;
-    writer.fp = fopen(path, "wb");
-    writer.bits_present = bits_present;
-    writer.current_byte = current_byte;
-    return writer;
-}
-
 void write_bits(struct bit_writer *writer, char bits, int length) {
     while (length > 0) {
         int space_left = 8 - writer->bits_present;
@@ -30,7 +22,6 @@ void write_bits(struct bit_writer *writer, char bits, int length) {
         }
     }
 }
-
 
 void close_bit_writer(struct bit_writer *writer) {
     if (writer->bits_present > 0)
