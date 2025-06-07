@@ -16,13 +16,8 @@ int main(int argc, char *argv[]) {
     } else
 	fp = fopen(argv[1], "r");
 
-
     while ((c = getc(fp)) != EOF)
 	root = add_tree(root, c);
-
-
-
-    /* tree_print(root); */
 
     printf("collected: \n\n\n");
     symbols_count = collect_nodes(leafs, root, 0);
@@ -49,41 +44,40 @@ int main(int argc, char *argv[]) {
 
     FILE *output = fopen("example.huffman", "wb");
     struct bit_writer writer = {output, 0, 0};
+    int closest_num = size;
+
     if (size % 8 != 0) {
-        int closest_num = ((int)(size / 8) + 1) * 8;
-	int bits_present = closest_num - size;
-	printf("present %d closest %d size %d\n\n\n", bits_present, closest_num, size);
-	char current_byte = 0xFF << (8 - (bits_present - 1));
-	writer.bits_present = bits_present;
-	writer.current_byte = current_byte;
+        closest_num = ((int)(size / 8) + 1) * 8;
+        int bits_present = closest_num - size;
+        printf("present %d closest %d size %d\n\n\n", bits_present, closest_num, size);
+        char current_byte = 0xFF << (8 - (bits_present - 1));
+        writer.bits_present = bits_present;
+        writer.current_byte = current_byte;
     }
+
+
+    fwrite(&closest_num, sizeof(int), 1, output);
+    printf("size of int %zu, size of encoded %d\n", sizeof(int), closest_num);
+
     rewind(fp);
     while ((c = getc(fp)) != EOF)
         write_bits(&writer, dict[c].bits, dict[c].length);
 
     fclose(fp);
 
-    close_bit_writer(&writer);
-
-    FILE *fp1 = fopen("example.huffman", "r");
-    while ((c = getc(fp1)) != EOF)
-	print_binary(c, 8);
-    printf("\n");
-    fclose(fp1);
-
-    FILE *write_tree = fopen("tree.huffman", "wb");
-    struct bit_writer writer1 = {write_tree, 0, 0};
     struct huffman_node node;
     node.value.internal_node = huffman_tree;
     node.type = 1;
-    write_huffman_tree(&writer1, node);
-    close_bit_writer(&writer1);
-    printf("huffman tree encoded\n");
-    FILE *fp2 = fopen("tree.huffman", "r");
-    while ((c = getc(fp2)) != EOF) {
+    write_huffman_tree(&writer, node);
+    close_bit_writer(&writer);
+    free_huffman_tree(huffman_tree);
+
+    printf("output\n");
+    FILE *fp1 = fopen("example.huffman", "r");
+    while ((c = getc(fp1)) != EOF) {
 	print_binary(c, 8);
     }
     printf("\n");
-    free_huffman_tree(huffman_tree);
+    fclose(fp1);
     return 0;
 }
