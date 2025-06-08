@@ -123,3 +123,56 @@ void write_huffman_tree(struct bit_writer *writer, struct huffman_node node) {
 	write_huffman_tree(writer, *node.value.internal_node->right);
     }
 }
+
+struct huffman_node *parse_huffman(struct bit_reader *reader) {
+    unsigned char size[4];
+    int sum = 0;
+    for (int i = 0; i < 4; i++) {
+	size[i] = read_byte(reader);
+	if (size[i] == 0)
+	    break;
+        sum += size[0] | (size[1]<<8) | (size[2]<<16) | (size[3]<<24);
+    }
+    printf("size little endian %d\n", sum);
+    reader->byte_pos = 4 + sum / 8;
+
+    struct huffman_node *root = read_node(reader);
+    struct huffman_node *current_node = root;
+    print_huffman_tree(root->value.internal_node, 0);
+    reader->byte_pos = 4;
+    while (read_bit(reader) == 1)
+	;
+
+    printf("result\n");
+    while ((reader->byte_pos * 8 + reader->bit_pos) < (4 + sum / 8)*8) {
+	if (read_bit(reader) == 0)
+	    current_node = current_node->value.internal_node->left;
+	else
+	    current_node = current_node->value.internal_node->right;
+	if (current_node->type == LEAF) {
+	    putchar(current_node->value.leaf_node.symbol);
+	    current_node = root;
+	}
+    } 
+    return root;
+}
+
+struct huffman_node *read_node(struct bit_reader *reader) {
+    struct huffman_node *ret = (struct huffman_node *) malloc(sizeof(struct huffman_node));
+    if (read_bit(reader) == 1) {
+	struct leaf leaf_node;
+	leaf_node.symbol = read_byte(reader);
+	ret->value.leaf_node = leaf_node;
+	ret->type = LEAF;
+	return ret;
+    } else {
+	struct huffman_node *left = read_node(reader);
+	struct huffman_node *right = read_node(reader);
+	struct internal *internal_node = (struct internal *) malloc(sizeof(struct internal));
+	internal_node->left = left;
+	internal_node->right = right;
+	ret->value.internal_node = internal_node;
+	ret->type = INTERNAL;
+	return ret;
+    }
+}

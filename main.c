@@ -94,10 +94,9 @@ int main(int argc, char *argv[]) {
         fp = fopen(argv[1], "rb");
 
         fseek(fp, 0, SEEK_END);
-        int size = ftell(fp)-20;
+        int size = ftell(fp);
 	printf("size %d\n", size);
         rewind(fp);
-        fseek(fp, 20, SEEK_SET);
         unsigned char *buffer = (unsigned char *)malloc(size*9);
         for (int i = 0; (c = getc(fp)) != EOF; i++) {
 	    print_binary(c, 8);
@@ -105,17 +104,9 @@ int main(int argc, char *argv[]) {
 	}
 	printf("\n");
 	struct bit_reader reader = {buffer, size, 0, 0};
-	while (reader.byte_pos < reader.size) {
-            char bit = read_bit(&reader);
-            if (bit == 1) {
-                char symbol = read_byte(&reader);
-                printf("1%c ", symbol);
-            } else {
-                printf("0 ");
-            }
-        }
-
-	printf("\n");
+	struct huffman_node *node = parse_huffman(&reader);
+	free_huffman_tree(node->value.internal_node);
+	free(node);
 	free(buffer);
     } else {
 	fprintf(stderr, "provide file name\n");
