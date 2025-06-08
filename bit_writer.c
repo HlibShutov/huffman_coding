@@ -3,6 +3,8 @@
 #include "huffman_coding.h"
 
 void write_bits(struct bit_writer *writer, char bits, int length) {
+    if (bits == 'C')
+	printf("nesfesfefefesfefes\n");
     while (length > 0) {
         int space_left = 8 - writer->bits_present;
 

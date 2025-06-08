@@ -69,7 +69,17 @@ struct bit_writer {
 };
 
 struct bit_writer open_bit_writer(char *, int, char);
-void write_bits(struct bit_writer *writer, char bits, int length);
-void close_bit_writer(struct bit_writer *writer);
-void print_binary(char c, int length);
-void write_huffman_tree(struct bit_writer *writer, struct huffman_node node);
+void write_bits(struct bit_writer *, char, int);
+void close_bit_writer(struct bit_writer *);
+void print_binary(char, int);
+void write_huffman_tree(struct bit_writer *, struct huffman_node);
+
+struct bit_reader {
+    unsigned char *buffer;
+    int size;
+    int bit_pos;
+    int byte_pos;
+};
+
+char read_bit(struct bit_reader *);
+char read_byte(struct bit_reader *);
