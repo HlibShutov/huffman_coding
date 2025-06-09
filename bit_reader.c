@@ -11,13 +11,13 @@ char read_bit(struct bit_reader *reader) {
     return bit;
 }
 
-char read_byte(struct bit_reader *reader) {
-    char byte;
+unsigned char read_byte(struct bit_reader *reader) {
+    unsigned char byte;
     if (reader->bit_pos == 0) {
 	byte = reader->buffer[reader->byte_pos++];
     } else {
-	char left_part = reader->buffer[reader->byte_pos++] << reader->bit_pos;
-	char right_part = reader->buffer[reader->byte_pos] >> (8 - reader->bit_pos);
+	unsigned char left_part = reader->buffer[reader->byte_pos++] << reader->bit_pos;
+	unsigned char right_part = reader->buffer[reader->byte_pos] >> (8 - reader->bit_pos);
 	byte = left_part | right_part;
     }
     return byte;

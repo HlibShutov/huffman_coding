@@ -62,14 +62,14 @@ struct huffman_node *get_min(struct leaf leafs[], int leafs_count, struct queue 
 void print_huffman_tree(struct internal *root, int offset) {
     if (root->left->type == LEAF) {
 	for (int i = 0; i < offset*4; i++)
-	    printf(" ");
+	    putchar(' ');
 	printf("left leaf '%c' %d\n", root->left->value.leaf_node.symbol, root->left->value.leaf_node.weight);
     } else
 	print_huffman_tree(root->left->value.internal_node, ++offset);
 
     if (root->right->type == LEAF) {
 	for (int i = 0; i < offset*4; i++)
-	    printf(" ");
+	    putchar(' ');
 	printf("right leaf '%c' %d\n", root->right->value.leaf_node.symbol, root->right->value.leaf_node.weight);
     } else
 	print_huffman_tree(root->right->value.internal_node, ++offset);
@@ -107,7 +107,6 @@ void collect_huffman_tree(struct internal *root, struct bit_path dict[], struct 
     }
 }
 
-
 void add_bit(struct bit_path *path, int bit) {
     path->bits |= ((char)(bit & 1) << (7 - path->length));
     path->length++;
@@ -126,25 +125,40 @@ void write_huffman_tree(struct bit_writer *writer, struct huffman_node node) {
 
 struct huffman_node *parse_huffman(struct bit_reader *reader) {
     unsigned char size[4];
-    int sum = 0;
-    for (int i = 0; i < 4; i++) {
-	size[i] = read_byte(reader);
-	if (size[i] == 0)
-	    break;
-        sum += size[0] | (size[1]<<8) | (size[2]<<16) | (size[3]<<24);
-    }
-    printf("size little endian %d\n", sum);
+    unsigned int sum = 0;
+    /* for (int i = 0; i < 4; i++) { */
+	/* size[i] = (unsigned char)read_byte(reader); */
+	/* if (size[i] == 0) */
+	    /* break; */
+    /*     /1* sum += (unsigned char)(size[3]<<24) | (unsigned char)(size[2]<<16) | (unsigned char)(size[1]<<8) | (unsigned char)size[0]; *1/ */
+    /*     sum += (size[3]<<24) | (size[2]<<16) | (size[1]<<8) | size[0]; */
+    /* } */
+    /* int byte1 = (int)read_byte(reader); */
+    /* int byte2 = (int)read_byte(reader); */
+    /* int byte3 = (int)read_byte(reader); */
+    /* int byte4 = (int)read_byte(reader); */
+    /* sum = (int)byte4 | (int)byte3<<8 | (int)byte2<<16 | (int)byte1<<24; */
+
+    unsigned int byte1 = (unsigned int)read_byte(reader);  // MSB
+    unsigned int byte2 = (unsigned int)read_byte(reader);
+    unsigned int byte3 = (unsigned int)read_byte(reader);
+    unsigned int byte4 = (unsigned int)read_byte(reader);  // LSB
+    
+    sum = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+
+    printf("size of body %d\n", sum);
     reader->byte_pos = 4 + sum / 8;
 
     struct huffman_node *root = read_node(reader);
     struct huffman_node *current_node = root;
     print_huffman_tree(root->value.internal_node, 0);
     reader->byte_pos = 4;
+    reader->bit_pos = 0;
     while (read_bit(reader) == 1)
 	;
 
     printf("result\n");
-    while ((reader->byte_pos * 8 + reader->bit_pos) < (4 + sum / 8)*8) {
+    while ((reader->byte_pos * 8 + reader->bit_pos) < (4 + (int)sum / 8)*8) {
 	if (read_bit(reader) == 0)
 	    current_node = current_node->value.internal_node->left;
 	else

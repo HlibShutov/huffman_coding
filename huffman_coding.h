@@ -82,7 +82,7 @@ struct bit_reader {
 };
 
 char read_bit(struct bit_reader *);
-char read_byte(struct bit_reader *);
+unsigned char read_byte(struct bit_reader *);
 
 struct huffman_node *parse_huffman(struct bit_reader *);
 struct huffman_node *read_node(struct bit_reader *reader);

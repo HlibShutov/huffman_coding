@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <math.h>
 #include "huffman_coding.h"
 
@@ -53,7 +54,13 @@ int main(int argc, char *argv[]) {
         }
 
 
-        fwrite(&closest_num, sizeof(int), 1, output);
+	unsigned char value[4];
+        value[0] = (uint32_t)closest_num >> 24;
+        value[1] = (uint32_t)closest_num >> 16;
+        value[2] = (uint32_t)closest_num >> 8;
+        value[3] = (uint32_t)closest_num;
+        fwrite(value, 4, 1, output);
+        /* fwrite(&closest_num, sizeof(int), 1, output); */
         printf("size of int %zu, size of encoded %d\n", sizeof(int), closest_num);
 
         rewind(fp);
@@ -66,29 +73,16 @@ int main(int argc, char *argv[]) {
         node.value.internal_node = huffman_tree;
         node.type = 1;
 
-
-
-
         FILE *output1 = fopen("tree.huffman", "wb");
         struct bit_writer writer1 = {output1, 0, 0};
 	printf("writing tree\n");
         write_huffman_tree(&writer1, node);
 	printf("end writing tree\n");
 
-
-
-
-
         write_huffman_tree(&writer, node);
         close_bit_writer(&writer);
         free_huffman_tree(huffman_tree);
 
-        printf("output\n");
-        FILE *fp1 = fopen(argv[2], "r");
-        while ((c = getc(fp1)) != EOF)
-    	    print_binary(c, 8);
-        printf("\n");
-        fclose(fp1);
         return 0;
     } else if (argc == 2) {
         fp = fopen(argv[1], "rb");
@@ -97,7 +91,7 @@ int main(int argc, char *argv[]) {
         int size = ftell(fp);
 	printf("size %d\n", size);
         rewind(fp);
-        unsigned char *buffer = (unsigned char *)malloc(size*9);
+        unsigned char *buffer = (unsigned char *)malloc(size*8);
         for (int i = 0; (c = getc(fp)) != EOF; i++) {
 	    print_binary(c, 8);
 	    buffer[i] = c;
