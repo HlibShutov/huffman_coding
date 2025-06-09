@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
         int size = 0;
         while ((c = getc(fp)) != EOF) {
     	    printf("'%c': ", c);
-    	    print_binary(dict[c].bits, dict[c].length);
+    	    print_binary_int(dict[c].bits, dict[c].length);
     	    printf("\n");
     	    size += dict[c].length;
         }
@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
 
         rewind(fp);
         while ((c = getc(fp)) != EOF)
-            write_bits(&writer, dict[c].bits, dict[c].length);
+            write_bits_int(&writer, dict[c].bits, dict[c].length);
 
         fclose(fp);
 

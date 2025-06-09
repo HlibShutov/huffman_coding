@@ -108,7 +108,7 @@ void collect_huffman_tree(struct internal *root, struct bit_path dict[], struct 
 }
 
 void add_bit(struct bit_path *path, int bit) {
-    path->bits |= ((char)(bit & 1) << (7 - path->length));
+    path->bits |= ((bit & 1) << (31 - path->length));
     path->length++;
 }
 
@@ -126,23 +126,11 @@ void write_huffman_tree(struct bit_writer *writer, struct huffman_node node) {
 struct huffman_node *parse_huffman(struct bit_reader *reader) {
     unsigned char size[4];
     unsigned int sum = 0;
-    /* for (int i = 0; i < 4; i++) { */
-	/* size[i] = (unsigned char)read_byte(reader); */
-	/* if (size[i] == 0) */
-	    /* break; */
-    /*     /1* sum += (unsigned char)(size[3]<<24) | (unsigned char)(size[2]<<16) | (unsigned char)(size[1]<<8) | (unsigned char)size[0]; *1/ */
-    /*     sum += (size[3]<<24) | (size[2]<<16) | (size[1]<<8) | size[0]; */
-    /* } */
-    /* int byte1 = (int)read_byte(reader); */
-    /* int byte2 = (int)read_byte(reader); */
-    /* int byte3 = (int)read_byte(reader); */
-    /* int byte4 = (int)read_byte(reader); */
-    /* sum = (int)byte4 | (int)byte3<<8 | (int)byte2<<16 | (int)byte1<<24; */
 
-    unsigned int byte1 = (unsigned int)read_byte(reader);  // MSB
+    unsigned int byte1 = (unsigned int)read_byte(reader);
     unsigned int byte2 = (unsigned int)read_byte(reader);
     unsigned int byte3 = (unsigned int)read_byte(reader);
-    unsigned int byte4 = (unsigned int)read_byte(reader);  // LSB
+    unsigned int byte4 = (unsigned int)read_byte(reader);
     
     sum = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
 

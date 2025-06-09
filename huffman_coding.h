@@ -55,7 +55,7 @@ void print_huffman_tree(struct internal *, int);
 void free_huffman_tree(struct internal *root);
 
 struct bit_path {
-    char bits;
+    int bits;
     int length;
 };
 
@@ -65,7 +65,7 @@ void collect_huffman_tree(struct internal *, struct bit_path[], struct bit_path)
 struct bit_writer {
     FILE *fp;
     int bits_present;
-    char current_byte;
+    unsigned char current_byte;
 };
 
 struct bit_writer open_bit_writer(char *, int, char);
@@ -86,3 +86,6 @@ unsigned char read_byte(struct bit_reader *);
 
 struct huffman_node *parse_huffman(struct bit_reader *);
 struct huffman_node *read_node(struct bit_reader *reader);
+
+void print_binary_int(int c, int length);
+void write_bits_int(struct bit_writer *writer, int bits, int length);
