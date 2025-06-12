@@ -89,23 +89,28 @@ void free_huffman_tree(struct internal *root) {
     }
 }
 
-void collect_huffman_tree(struct internal *root, struct bit_path dict[], struct bit_path path) {
+int collect_huffman_tree(struct internal *root, struct bit_path dict[], struct bit_path path) {
+    int size = 0;
     struct bit_path left_path = path;
     add_bit(&left_path, 0);
     if (root->left->type == LEAF) {
         dict[root->left->value.leaf_node.symbol] = left_path;
+	size += left_path.length + 1;
     } else {
-        collect_huffman_tree(root->left->value.internal_node, dict, left_path);
+        size += collect_huffman_tree(root->left->value.internal_node, dict, left_path) + 1;
     }
 
     struct bit_path right_path = path;
     add_bit(&right_path, 1);
     if (root->right->type == LEAF) {
         dict[root->right->value.leaf_node.symbol] = right_path;
+	size += right_path.length + 1;
     } else {
-        collect_huffman_tree(root->right->value.internal_node, dict, right_path);
+        size += collect_huffman_tree(root->right->value.internal_node, dict, right_path) + 1;
     }
+    return size;
 }
+
 
 void add_bit(struct bit_path *path, int bit) {
     path->bits |= ((bit & 1) << (31 - path->length));
@@ -124,29 +129,14 @@ void write_huffman_tree(struct bit_writer *writer, struct huffman_node node) {
 }
 
 struct huffman_node *parse_huffman(struct bit_reader *reader) {
-    unsigned char size[4];
-    unsigned int sum = 0;
-
-    unsigned int byte1 = (unsigned int)read_byte(reader);
-    unsigned int byte2 = (unsigned int)read_byte(reader);
-    unsigned int byte3 = (unsigned int)read_byte(reader);
-    unsigned int byte4 = (unsigned int)read_byte(reader);
-    
-    sum = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
-
-    printf("size of body %d\n", sum);
-    reader->byte_pos = 4 + sum / 8;
-
+    while (read_bit(reader) == 1)
+	;
     struct huffman_node *root = read_node(reader);
     struct huffman_node *current_node = root;
     print_huffman_tree(root->value.internal_node, 0);
-    reader->byte_pos = 4;
-    reader->bit_pos = 0;
-    while (read_bit(reader) == 1)
-	;
 
     printf("result\n");
-    while ((reader->byte_pos * 8 + reader->bit_pos) < (4 + (int)sum / 8)*8) {
+    while (!reader->eof) {
 	if (read_bit(reader) == 0)
 	    current_node = current_node->value.internal_node->left;
 	else
@@ -164,6 +154,7 @@ struct huffman_node *read_node(struct bit_reader *reader) {
     if (read_bit(reader) == 1) {
 	struct leaf leaf_node;
 	leaf_node.symbol = read_byte(reader);
+	printf("%c", leaf_node.symbol);
 	ret->value.leaf_node = leaf_node;
 	ret->type = LEAF;
 	return ret;

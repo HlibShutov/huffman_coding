@@ -60,7 +60,7 @@ struct bit_path {
 };
 
 void add_bit(struct bit_path *, int);
-void collect_huffman_tree(struct internal *, struct bit_path[], struct bit_path);
+int collect_huffman_tree(struct internal *, struct bit_path[], struct bit_path);
 
 struct bit_writer {
     FILE *fp;
@@ -74,18 +74,23 @@ void close_bit_writer(struct bit_writer *);
 void print_binary(char, int);
 void write_huffman_tree(struct bit_writer *, struct huffman_node);
 
+#define BUFFER_SIZE 32
+
 struct bit_reader {
-    unsigned char *buffer;
-    int size;
-    int bit_pos;
+    FILE *fp;
+    unsigned char buffer[BUFFER_SIZE];
+    int buffer_len
     int byte_pos;
+    int bit_pos;
+    int eof;
 };
 
 char read_bit(struct bit_reader *);
 unsigned char read_byte(struct bit_reader *);
 
 struct huffman_node *parse_huffman(struct bit_reader *);
-struct huffman_node *read_node(struct bit_reader *reader);
+struct huffman_node *read_node(struct bit_reader *);
 
-void print_binary_int(int c, int length);
-void write_bits_int(struct bit_writer *writer, int bits, int length);
+void print_binary_int(int, int);
+void write_bits_int(struct bit_writer *, int, int);
+void refill_buffer(struct bit_reader *);
