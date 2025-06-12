@@ -27,11 +27,11 @@ unsigned char read_byte(struct bit_reader *reader) {
 }
 
 void refill_buffer(struct bit_reader *reader) {
-    if (reader->byte_pos >= reader->buffer_len && !reader->eof) {
+    if (reader->byte_pos >= reader->buffer_len) {
         reader->buffer_len = fread(reader->buffer, 1, BUFFER_SIZE, reader->fp);
         reader->byte_pos = 0;
         if (reader->buffer_len < BUFFER_SIZE) {
-            reader->eof = 1;
+            reader->eof = reader->buffer_len;
         }
     }
 }

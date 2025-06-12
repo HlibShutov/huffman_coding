@@ -55,7 +55,7 @@ void print_huffman_tree(struct internal *, int);
 void free_huffman_tree(struct internal *root);
 
 struct bit_path {
-    int bits;
+    unsigned int bits;
     int length;
 };
 

@@ -113,7 +113,7 @@ int collect_huffman_tree(struct internal *root, struct bit_path dict[], struct b
 
 
 void add_bit(struct bit_path *path, int bit) {
-    path->bits |= ((bit & 1) << (31 - path->length));
+    path->bits |= (unsigned int)(((unsigned int)bit & 1) << (31 - path->length));
     path->length++;
 }
 
@@ -136,8 +136,13 @@ struct huffman_node *parse_huffman(struct bit_reader *reader, FILE *output) {
     print_huffman_tree(root->value.internal_node, 0);
 
     printf("result\n");
-    while (!reader->eof) {
-	if (read_bit(reader) == 0)
+    /* while (!reader->eof) { */
+    /* while (!(reader->eof && reader->byte_pos >= reader->buffer_len)) { */
+    while (reader->eof != reader->byte_pos) {
+
+	char bit = read_bit(reader);
+	printf("%d", bit);
+	if (bit == 0)
 	    current_node = current_node->value.internal_node->left;
 	else
 	    current_node = current_node->value.internal_node->right;
@@ -146,6 +151,7 @@ struct huffman_node *parse_huffman(struct bit_reader *reader, FILE *output) {
 	    current_node = root;
 	}
     } 
+    printf("%d\n", reader->eof);
     return root;
 }
 
