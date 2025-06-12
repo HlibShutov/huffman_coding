@@ -79,7 +79,7 @@ void write_huffman_tree(struct bit_writer *, struct huffman_node);
 struct bit_reader {
     FILE *fp;
     unsigned char buffer[BUFFER_SIZE];
-    int buffer_len
+    int buffer_len;
     int byte_pos;
     int bit_pos;
     int eof;
@@ -88,7 +88,7 @@ struct bit_reader {
 char read_bit(struct bit_reader *);
 unsigned char read_byte(struct bit_reader *);
 
-struct huffman_node *parse_huffman(struct bit_reader *);
+struct huffman_node *parse_huffman(struct bit_reader *, FILE *);
 struct huffman_node *read_node(struct bit_reader *);
 
 void print_binary_int(int, int);

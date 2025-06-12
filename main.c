@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include <math.h>
 #include "huffman_coding.h"
 
 int main(int argc, char *argv[]) {
     FILE *fp;
+    FILE *output;
     int c, symbols_count, decode;
     struct node *root = NULL;
     struct leaf leafs[256];
@@ -40,7 +42,7 @@ int main(int argc, char *argv[]) {
         }
         printf("bits size %d\n", size);
 
-	FILE *output = fopen(argv[2], "wb");
+	output = fopen(argv[2], "wb");
         struct bit_writer writer = {output, 0, 0};
 
         int file_size = size + tree_size;
@@ -71,8 +73,9 @@ int main(int argc, char *argv[]) {
         free_huffman_tree(huffman_tree);
 
         return 0;
-    } else if (argc == 2) {
+    } else if (argc == 4 && !strcmp(argv[3], "-d")) {
         fp = fopen(argv[1], "rb");
+        output = fopen(argv[2], "wb");
 
         fseek(fp, 0, SEEK_END);
         int size = ftell(fp);
@@ -86,10 +89,12 @@ int main(int argc, char *argv[]) {
 	reader.bit_pos = 0;
 	reader.eof = 0;
 	refill_buffer(&reader);
-	struct huffman_node *node = parse_huffman(&reader);
+	struct huffman_node *node = parse_huffman(&reader, output);
 	free_huffman_tree(node->value.internal_node);
 	free(node);
     } else {
+	printf("%s\n", argv[3]);
+	printf("%d\n", strcmp(argv[3], "-d"));
 	fprintf(stderr, "provide file name\n");
 	exit(1);
     } 

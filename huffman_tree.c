@@ -128,7 +128,7 @@ void write_huffman_tree(struct bit_writer *writer, struct huffman_node node) {
     }
 }
 
-struct huffman_node *parse_huffman(struct bit_reader *reader) {
+struct huffman_node *parse_huffman(struct bit_reader *reader, FILE *output) {
     while (read_bit(reader) == 1)
 	;
     struct huffman_node *root = read_node(reader);
@@ -142,7 +142,7 @@ struct huffman_node *parse_huffman(struct bit_reader *reader) {
 	else
 	    current_node = current_node->value.internal_node->right;
 	if (current_node->type == LEAF) {
-	    putchar(current_node->value.leaf_node.symbol);
+	    putc(current_node->value.leaf_node.symbol, output);
 	    current_node = root;
 	}
     } 
