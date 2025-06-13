@@ -95,7 +95,7 @@ int collect_huffman_tree(struct internal *root, struct bit_path dict[], struct b
     add_bit(&left_path, 0);
     if (root->left->type == LEAF) {
         dict[root->left->value.leaf_node.symbol] = left_path;
-	size += left_path.length + 1;
+	size += 9;
     } else {
         size += collect_huffman_tree(root->left->value.internal_node, dict, left_path) + 1;
     }
@@ -104,7 +104,7 @@ int collect_huffman_tree(struct internal *root, struct bit_path dict[], struct b
     add_bit(&right_path, 1);
     if (root->right->type == LEAF) {
         dict[root->right->value.leaf_node.symbol] = right_path;
-	size += right_path.length + 1;
+	size += 9;
     } else {
         size += collect_huffman_tree(root->right->value.internal_node, dict, right_path) + 1;
     }
@@ -141,7 +141,7 @@ struct huffman_node *parse_huffman(struct bit_reader *reader, FILE *output) {
     while (reader->eof != reader->byte_pos) {
 
 	char bit = read_bit(reader);
-	printf("%d", bit);
+	/* printf("%d", bit); */
 	if (bit == 0)
 	    current_node = current_node->value.internal_node->left;
 	else

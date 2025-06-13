@@ -80,6 +80,7 @@ void write_bits_int(struct bit_writer *writer, int bits, int length) {
 ```
 
 ---
+---
 
 # Dekompresja
 
@@ -111,6 +112,7 @@ struct huffman_node *read_node(struct bit_reader *reader) {
 ### Dalej po prostu czytamy bity po kolei i odczytujemy znak z drzewa
 
 ---
+---
 
 # Jak czytać bity
 
@@ -134,6 +136,7 @@ unsigned char read_byte(struct bit_reader *reader) {
     } else {
 	    refill_buffer(reader);
 	    unsigned char left_part = reader->buffer[reader->byte_pos++] << reader->bit_pos;
+	    refill_buffer(reader);
 	    unsigned char right_part = reader->buffer[reader->byte_pos] >> (8 - reader->bit_pos);
 	    byte = left_part | right_part;
     }

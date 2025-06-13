@@ -49,15 +49,11 @@ int main(int argc, char *argv[]) {
 
         struct bit_writer writer = {output, 0, 0};
 
-        int file_size = size + tree_size;
+        int file_size = size + tree_size + 1;
 
         if (file_size % 8 != 0) {
             int closest_num = ((int)(file_size / 8) + 1) * 8;
-	    /* closest_num += 2; */
             int bits_present = closest_num - file_size;
-	    bits_present += 2;
-	    if (bits_present > 8)
-		bits_present -= 8;
             printf("present %d closest %d size %d\n\n\n", bits_present, closest_num, file_size);
             char current_byte = 0xFF << (8 - (bits_present - 1));
             writer.bits_present = bits_present;

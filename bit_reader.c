@@ -20,6 +20,7 @@ unsigned char read_byte(struct bit_reader *reader) {
     } else {
 	refill_buffer(reader);
 	unsigned char left_part = reader->buffer[reader->byte_pos++] << reader->bit_pos;
+	refill_buffer(reader);
 	unsigned char right_part = reader->buffer[reader->byte_pos] >> (8 - reader->bit_pos);
 	byte = left_part | right_part;
     }
